@@ -8,9 +8,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Interview Prep Tracker",
+        name: "Task Tracker",
         short_name: "Tracker",
-        description: "Daily interview preparation planner with sync",
+        description: "Daily task tracker with sync",
         start_url: "/",
         display: "standalone",
         background_color: "#FAF8F5",
