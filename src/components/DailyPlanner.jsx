@@ -296,7 +296,12 @@ export default function DailyPlanner() {
     <div style={styles.root}>
       {/* Top Bar */}
       <div style={styles.topBar}>
-        <span style={styles.topBarTitle}>Task Tracker</span>
+        <div>
+          <span style={styles.topBarTitle}>Task Tracker</span>
+          <p style={styles.topBarDate}>
+            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+          </p>
+        </div>
         <button onClick={() => setShowSyncPanel(true)} style={styles.syncBtnTop}>
           {syncCode ? (syncing ? "\u21BB" : "\u2601") : "\u26A1"} {syncCode ? "Synced" : "Sync"}
         </button>
@@ -329,6 +334,19 @@ export default function DailyPlanner() {
             {categories.filter((c) => todayData[c.id]?.done).length}/{categories.length} categories completed
           </p>
         </div>
+        <img
+          src={
+            progress === 100 ? "/celebrate-party.gif"
+            : progress >= 50 ? "/cat.gif"
+            : progress > 0 ? "/pixel-dogs.gif"
+            : "/cat.gif"
+          }
+          alt="pet"
+          style={{
+            ...styles.petGif,
+            ...(progress === 0 ? { filter: "grayscale(0.5)", opacity: 0.6 } : {}),
+          }}
+        />
       </div>
 
       {/* Tabs */}
@@ -937,7 +955,8 @@ const styles = {
     alignItems: "center",
     marginBottom: 16,
   },
-  topBarTitle: { fontSize: 18, fontWeight: 700, color: "#3D3529" },
+  topBarTitle: { fontSize: 18, fontWeight: 700, color: "#3D3529", display: "block" },
+  topBarDate: { margin: "2px 0 0", fontSize: 12, color: "#A69B8D", fontWeight: 500 },
   syncBtnTop: {
     background: "#FFFDF9",
     border: "1px solid #E8E0D4",
@@ -972,6 +991,7 @@ const styles = {
   progressInfo: { flex: 1 },
   progressTitle: { margin: 0, fontSize: 18, fontWeight: 700, color: "#1A1B1E" },
   progressSub: { margin: "4px 0 0", fontSize: 13, color: "#868E96" },
+  petGif: { width: 130, height: 130, objectFit: "contain", flexShrink: 0, marginRight: -16 },
   tabs: {
     display: "flex",
     gap: 8,
