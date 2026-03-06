@@ -524,39 +524,65 @@ export default function DailyPlanner() {
               const subs = getSubtasks(cat.id, catData);
               return sum + subs.filter((s) => s.done).length;
             }, 0);
+            const totalSubtasks = categories.reduce((sum, cat) => {
+              const catData = todayData[cat.id] || { subtasks: [] };
+              return sum + getSubtasks(cat.id, catData).length;
+            }, 0);
+            const taskPercent = totalSubtasks > 0 ? Math.round((totalTasks / totalSubtasks) * 100) : 0;
 
             return (
               <div style={styles.insightCard}>
-                {/* Daily Challenge */}
+                {/* Header */}
+                <div style={styles.insightHeader}>
+                  <span style={styles.insightTitle}>Daily Insight</span>
+                  <span style={styles.insightDate}>
+                    {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                  </span>
+                </div>
+
+                {/* Stats Row */}
+                <div style={styles.statsRow}>
+                  <div style={styles.statBox}>
+                    <div style={styles.statBoxIcon}>{"\uD83C\uDFAF"}</div>
+                    <span style={styles.statBoxNum}>{totalTasks}/{totalSubtasks}</span>
+                    <span style={styles.statBoxLabel}>Tasks</span>
+                  </div>
+                  <div style={styles.statBox}>
+                    <div style={styles.statBoxIcon}>{"\uD83D\uDD25"}</div>
+                    <span style={styles.statBoxNum}>{bestStreak}d</span>
+                    <span style={styles.statBoxLabel}>Best Streak</span>
+                  </div>
+                  <div style={styles.statBox}>
+                    <div style={styles.statBoxIcon}>{"\uD83D\uDCC1"}</div>
+                    <span style={styles.statBoxNum}>{totalDone}/{categories.length}</span>
+                    <span style={styles.statBoxLabel}>Categories</span>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div style={styles.insightBarWrap}>
+                  <div style={styles.insightBarBg}>
+                    <div style={{
+                      ...styles.insightBarFill,
+                      width: `${taskPercent}%`,
+                      background: taskPercent === 100 ? "#2F9E44" : "linear-gradient(90deg, #E8590C, #C2255C)",
+                    }} />
+                  </div>
+                  <span style={styles.insightBarText}>{taskPercent}% complete</span>
+                </div>
+
+                {/* Challenge */}
                 <div style={styles.challengeRow}>
                   <span style={styles.challengeIcon}>{challenge.icon}</span>
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <p style={styles.challengeLabel}>Today's Challenge</p>
                     <p style={styles.challengeText}>{challenge.text}</p>
                   </div>
                 </div>
 
-                {/* Mini Stats */}
-                <div style={styles.miniStats}>
-                  <div style={styles.miniStat}>
-                    <span style={styles.miniStatNum}>{totalTasks}</span>
-                    <span style={styles.miniStatLabel}>tasks done</span>
-                  </div>
-                  <div style={styles.miniStatDivider} />
-                  <div style={styles.miniStat}>
-                    <span style={styles.miniStatNum}>{bestStreak}</span>
-                    <span style={styles.miniStatLabel}>best streak</span>
-                  </div>
-                  <div style={styles.miniStatDivider} />
-                  <div style={styles.miniStat}>
-                    <span style={styles.miniStatNum}>{totalDone}/{categories.length}</span>
-                    <span style={styles.miniStatLabel}>categories</span>
-                  </div>
-                </div>
-
                 {/* Fun Fact */}
                 <div style={styles.funFact}>
-                  <span style={styles.funFactIcon}>{"\uD83E\uDD13"}</span>
+                  <span style={styles.funFactIcon}>{"\uD83D\uDCA1"}</span>
                   <p style={styles.funFactText}>{fact}</p>
                 </div>
               </div>
@@ -1032,36 +1058,79 @@ const styles = {
     fontFamily: "'DM Sans', sans-serif",
   },
   insightCard: {
-    background: "#fff",
-    borderRadius: 14,
-    padding: "16px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+    background: "linear-gradient(145deg, #FFFDF9, #F5F0E8)",
+    borderRadius: 16,
+    padding: "18px",
+    border: "1px solid #E8E0D4",
   },
+  insightHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  insightTitle: { fontSize: 15, fontWeight: 700, color: "#3D3529" },
+  insightDate: { fontSize: 11, color: "#A69B8D", fontWeight: 500 },
+  statsRow: {
+    display: "flex",
+    gap: 8,
+    marginBottom: 14,
+  },
+  statBox: {
+    flex: 1,
+    background: "#FFFDF9",
+    borderRadius: 12,
+    padding: "12px 8px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    border: "1px solid #F0EBE3",
+  },
+  statBoxIcon: { fontSize: 20 },
+  statBoxNum: { fontSize: 16, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: "#3D3529" },
+  statBoxLabel: { fontSize: 10, color: "#A69B8D", fontWeight: 500 },
+  insightBarWrap: {
+    marginBottom: 14,
+  },
+  insightBarBg: {
+    height: 6,
+    borderRadius: 3,
+    background: "#E8E0D4",
+    overflow: "hidden",
+    marginBottom: 4,
+  },
+  insightBarFill: {
+    height: "100%",
+    borderRadius: 3,
+    transition: "width 0.6s ease",
+    minWidth: 2,
+  },
+  insightBarText: { fontSize: 10, color: "#A69B8D", fontWeight: 600 },
   challengeRow: {
     display: "flex",
     alignItems: "center",
     gap: 12,
-    marginBottom: 14,
+    background: "#FFFDF9",
+    borderRadius: 12,
+    padding: "12px",
+    marginBottom: 10,
+    border: "1px solid #F0EBE3",
   },
-  challengeIcon: { fontSize: 28, flexShrink: 0 },
-  challengeLabel: { margin: 0, fontSize: 10, fontWeight: 600, color: "#ADB5BD", textTransform: "uppercase", letterSpacing: "0.05em" },
-  challengeText: { margin: "3px 0 0", fontSize: 13, fontWeight: 500, color: "#343A40", lineHeight: 1.4 },
-  miniStats: {
+  challengeIcon: { fontSize: 26, flexShrink: 0 },
+  challengeLabel: { margin: 0, fontSize: 9, fontWeight: 700, color: "#C4B9AB", textTransform: "uppercase", letterSpacing: "0.08em" },
+  challengeText: { margin: "3px 0 0", fontSize: 13, fontWeight: 500, color: "#4A4035", lineHeight: 1.4 },
+  funFact: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around",
-    padding: "10px 0",
-    borderTop: "1px solid #F1F3F5",
-    borderBottom: "1px solid #F1F3F5",
-    marginBottom: 12,
+    alignItems: "flex-start",
+    gap: 8,
+    background: "#FFFDF9",
+    borderRadius: 10,
+    padding: "10px 12px",
+    border: "1px solid #F0EBE3",
   },
-  miniStat: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2 },
-  miniStatNum: { fontSize: 18, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: "#1A1B1E" },
-  miniStatLabel: { fontSize: 10, color: "#ADB5BD", fontWeight: 500 },
-  miniStatDivider: { width: 1, height: 28, background: "#F1F3F5" },
-  funFact: { display: "flex", alignItems: "flex-start", gap: 8 },
   funFactIcon: { fontSize: 14, flexShrink: 0, marginTop: 1 },
-  funFactText: { margin: 0, fontSize: 11, color: "#868E96", lineHeight: 1.5, fontStyle: "italic" },
+  funFactText: { margin: 0, fontSize: 11, color: "#A69B8D", lineHeight: 1.5 },
   noteSection: { marginTop: 10 },
   noteInput: {
     width: "100%",
