@@ -330,7 +330,7 @@ export default function DailyPlanner() {
 
       {/* Tabs */}
       <div style={styles.tabs}>
-        {["today", "week"].map((tab) => (
+        {["today", "week", "month"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -339,7 +339,7 @@ export default function DailyPlanner() {
               ...(activeTab === tab ? styles.tabActive : {}),
             }}
           >
-            {tab === "today" ? "\uD83D\uDCC5 Today" : "\uD83D\uDCCA Week View"}
+            {tab === "today" ? "\uD83D\uDCC5 Today" : tab === "week" ? "\uD83D\uDCCA Week" : "\uD83D\uDCC6 Month"}
           </button>
         ))}
       </div>
@@ -670,21 +670,24 @@ export default function DailyPlanner() {
                   <span style={{ ...styles.weekCount, color: cat.color }}>{weekDone}/7</span>
                 </div>
                 <div style={styles.weekGrid}>
-                  {week.map((d, i) => (
-                    <div key={d.date} style={styles.weekDay}>
-                      <span style={styles.dayLabel}>{DAYS[i]}</span>
-                      <div
-                        style={{
-                          ...styles.dayDot,
-                          background: d.done ? cat.color : "#E9ECEF",
-                          color: d.done ? "#fff" : "#ADB5BD",
-                        }}
-                      >
-                        {d.done ? "\u2713" : "\u00B7"}
+                  {week.map((d, i) => {
+                    const dayNum = new Date(d.date + "T00:00:00").getDate();
+                    return (
+                      <div key={d.date} style={styles.weekDay}>
+                        <span style={styles.dayLabel}>{DAYS[i]}</span>
+                        <div
+                          style={{
+                            ...styles.dayDot,
+                            background: d.done ? cat.color : "#F0EBE3",
+                            color: d.done ? "#fff" : "#C4B9AB",
+                            ...(d.date === today ? { outline: `2px solid ${cat.color}`, outlineOffset: 2 } : {}),
+                          }}
+                        >
+                          {d.done ? "\u2713" : dayNum}
+                        </div>
                       </div>
-                      {d.date === today && <div style={{ ...styles.todayDot, background: cat.color }} />}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -706,6 +709,90 @@ export default function DailyPlanner() {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Month View */}
+      {activeTab === "month" && (
+        <div style={styles.weekView}>
+          {(() => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthName = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+            // Build calendar grid cells
+            const cells = [];
+            for (let i = 0; i < firstDay; i++) cells.push(null);
+            for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+            return (
+              <>
+                <div style={styles.monthTitle}>{monthName}</div>
+
+                {categories.map((cat) => {
+                  let monthDone = 0;
+                  return (
+                    <div key={cat.id} style={{ ...styles.weekCard, borderLeft: `4px solid ${cat.color}` }}>
+                      <div style={styles.weekHeader}>
+                        <span>{cat.icon} {cat.label}</span>
+                      </div>
+
+                      {/* Day headers */}
+                      <div style={styles.monthGrid}>
+                        {DAYS.map((d) => (
+                          <div key={d} style={styles.monthDayHeader}>{d}</div>
+                        ))}
+                      </div>
+
+                      {/* Calendar cells */}
+                      <div style={styles.monthGrid}>
+                        {cells.map((day, i) => {
+                          if (day === null) return <div key={`e${i}`} style={styles.monthCell} />;
+                          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                          const done = data[dateStr]?.[cat.id]?.done || false;
+                          const isToday = dateStr === today;
+                          const isFuture = dateStr > today;
+                          if (done) monthDone++;
+
+                          return (
+                            <div key={dateStr} style={styles.monthCell}>
+                              <div
+                                style={{
+                                  ...styles.monthDot,
+                                  background: done ? cat.color : isFuture ? "transparent" : "#F0EBE3",
+                                  color: done ? "#fff" : isFuture ? "#E8E0D4" : "#A69B8D",
+                                  ...(isToday ? { outline: `2px solid ${cat.color}`, outlineOffset: 1 } : {}),
+                                }}
+                              >
+                                {done ? "\u2713" : day}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div style={styles.monthSummary}>
+                        <span style={{ color: cat.color, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
+                          {(() => {
+                            let count = 0;
+                            for (let d = 1; d <= daysInMonth; d++) {
+                              const ds = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+                              if (data[ds]?.[cat.id]?.done) count++;
+                            }
+                            return `${count}/${daysInMonth}`;
+                          })()}
+                        </span>
+                        <span style={{ color: "#A69B8D", fontSize: 12 }}> days completed</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -1170,6 +1257,46 @@ const styles = {
     color: "#ADB5BD",
     cursor: "pointer",
     lineHeight: 1.5,
+  },
+  monthTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: "#3D3529",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  monthGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: 2,
+  },
+  monthDayHeader: {
+    textAlign: "center",
+    fontSize: 10,
+    fontWeight: 600,
+    color: "#C4B9AB",
+    padding: "4px 0",
+  },
+  monthCell: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "3px 0",
+  },
+  monthDot: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 11,
+    fontWeight: 600,
+    transition: "all 0.2s",
+  },
+  monthSummary: {
+    marginTop: 8,
+    textAlign: "center",
   },
   weekView: { display: "flex", flexDirection: "column", gap: 10 },
   weekCard: {
