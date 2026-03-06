@@ -339,12 +339,11 @@ export default function DailyPlanner() {
             progress === 100 ? "/celebrate-party.gif"
             : progress >= 50 ? "/cat.gif"
             : progress > 0 ? "/pixel-dogs.gif"
-            : "/cat.gif"
+            : "/pixel-dogs.gif"
           }
           alt="pet"
           style={{
             ...styles.petGif,
-            ...(progress === 0 ? { filter: "grayscale(0.5)", opacity: 0.6 } : {}),
           }}
         />
       </div>
