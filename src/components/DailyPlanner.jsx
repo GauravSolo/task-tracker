@@ -69,8 +69,9 @@ const DEFAULT_SUBTASKS = {
 };
 
 const getToday = () => new Date().toISOString().split("T")[0];
-const getWeekDates = () => {
+const getWeekDates = (offset = 0) => {
   const today = new Date();
+  today.setDate(today.getDate() + offset * 7);
   const day = today.getDay();
   const start = new Date(today);
   start.setDate(today.getDate() - day);
@@ -110,9 +111,11 @@ export default function DailyPlanner() {
   const [showSyncPanel, setShowSyncPanel] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [monthOffset, setMonthOffset] = useState(0);
 
   const today = getToday();
-  const weekDates = getWeekDates();
+  const weekDates = getWeekDates(weekOffset);
   const quote = QUOTES[new Date().getDay() % QUOTES.length];
 
   useEffect(() => {
@@ -660,6 +663,20 @@ export default function DailyPlanner() {
       {/* Week View */}
       {activeTab === "week" && (
         <div style={styles.weekView}>
+          <div style={styles.navRow}>
+            <button onClick={() => setWeekOffset(weekOffset - 1)} style={styles.navBtn}>{"\u2190"}</button>
+            <span style={styles.navLabel}>
+              {(() => {
+                const s = new Date(weekDates[0] + "T00:00:00");
+                const e = new Date(weekDates[6] + "T00:00:00");
+                return `${s.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${e.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+              })()}
+            </span>
+            <button onClick={() => setWeekOffset(weekOffset + 1)} style={{ ...styles.navBtn, opacity: weekOffset >= 0 ? 0.3 : 1 }} disabled={weekOffset >= 0}>{"\u2192"}</button>
+          </div>
+          {weekOffset !== 0 && (
+            <button onClick={() => setWeekOffset(0)} style={styles.navTodayBtn}>Today</button>
+          )}
           {categories.map((cat) => {
             const week = getWeekData(cat.id);
             const weekDone = week.filter((d) => d.done).length;
@@ -670,24 +687,21 @@ export default function DailyPlanner() {
                   <span style={{ ...styles.weekCount, color: cat.color }}>{weekDone}/7</span>
                 </div>
                 <div style={styles.weekGrid}>
-                  {week.map((d, i) => {
-                    const dayNum = new Date(d.date + "T00:00:00").getDate();
-                    return (
-                      <div key={d.date} style={styles.weekDay}>
-                        <span style={styles.dayLabel}>{DAYS[i]}</span>
-                        <div
-                          style={{
-                            ...styles.dayDot,
-                            background: d.done ? cat.color : "#F0EBE3",
-                            color: d.done ? "#fff" : "#C4B9AB",
-                            ...(d.date === today ? { outline: `2px solid ${cat.color}`, outlineOffset: 2 } : {}),
-                          }}
-                        >
-                          {d.done ? "\u2713" : dayNum}
-                        </div>
+                  {week.map((d, i) => (
+                    <div key={d.date} style={styles.weekDay}>
+                      <span style={styles.dayLabel}>{DAYS[i]}</span>
+                      <div
+                        style={{
+                          ...styles.dayDot,
+                          background: d.done ? cat.color : "#F0EBE3",
+                          color: d.done ? "#fff" : "#C4B9AB",
+                        }}
+                      >
+                        {d.done ? "\u2713" : "\u00B7"}
                       </div>
-                    );
-                  })}
+                      {d.date === today && <div style={{ ...styles.todayDot, background: cat.color }} />}
+                    </div>
+                  ))}
                 </div>
               </div>
             );
@@ -717,6 +731,7 @@ export default function DailyPlanner() {
         <div style={styles.weekView}>
           {(() => {
             const now = new Date();
+            now.setMonth(now.getMonth() + monthOffset);
             const year = now.getFullYear();
             const month = now.getMonth();
             const firstDay = new Date(year, month, 1).getDay();
@@ -730,7 +745,14 @@ export default function DailyPlanner() {
 
             return (
               <>
-                <div style={styles.monthTitle}>{monthName}</div>
+                <div style={styles.navRow}>
+                  <button onClick={() => setMonthOffset(monthOffset - 1)} style={styles.navBtn}>{"\u2190"}</button>
+                  <span style={styles.navLabel}>{monthName}</span>
+                  <button onClick={() => setMonthOffset(monthOffset + 1)} style={{ ...styles.navBtn, opacity: monthOffset >= 0 ? 0.3 : 1 }} disabled={monthOffset >= 0}>{"\u2192"}</button>
+                </div>
+                {monthOffset !== 0 && (
+                  <button onClick={() => setMonthOffset(0)} style={styles.navTodayBtn}>This Month</button>
+                )}
 
                 {categories.map((cat) => {
                   let monthDone = 0;
@@ -1258,12 +1280,41 @@ const styles = {
     cursor: "pointer",
     lineHeight: 1.5,
   },
-  monthTitle: {
+  navRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  navBtn: {
+    background: "#FFFDF9",
+    border: "1px solid #E8E0D4",
+    borderRadius: 8,
+    width: 34,
+    height: 34,
     fontSize: 16,
+    cursor: "pointer",
+    color: "#3D3529",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "'DM Sans', sans-serif",
+  },
+  navLabel: {
+    fontSize: 14,
     fontWeight: 700,
     color: "#3D3529",
-    textAlign: "center",
-    marginBottom: 4,
+  },
+  navTodayBtn: {
+    display: "block",
+    margin: "0 auto 8px",
+    background: "none",
+    border: "none",
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#E8590C",
+    cursor: "pointer",
+    fontFamily: "'DM Sans', sans-serif",
   },
   monthGrid: {
     display: "grid",
