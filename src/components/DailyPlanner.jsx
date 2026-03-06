@@ -2,22 +2,22 @@ import { useState, useEffect, useCallback } from "react";
 import { useSync } from "../useSync";
 
 const DEFAULT_CATEGORIES = [
-  { id: "dsa", label: "DSA", icon: "\u26A1", color: "#E8590C", bg: "#FFF4E6", desc: "LeetCode / GFG problems" },
-  { id: "dev", label: "Development", icon: "\uD83D\uDEE0", color: "#1971C2", bg: "#E7F5FF", desc: "Projects & frameworks" },
-  { id: "core", label: "Core Subjects", icon: "\uD83D\uDCDA", color: "#5F3DC4", bg: "#F3F0FF", desc: "OS, DBMS, CN, OOP" },
-  { id: "english", label: "English", icon: "\uD83D\uDDE3", color: "#2F9E44", bg: "#EBFBEE", desc: "Reading & speaking" },
+  { id: "work", label: "Work", icon: "\uD83D\uDCBC", color: "#E8590C", bg: "#FFF4E6", desc: "Tasks & deadlines" },
+  { id: "learn", label: "Learning", icon: "\uD83D\uDCDA", color: "#1971C2", bg: "#E7F5FF", desc: "Skills & courses" },
+  { id: "health", label: "Health", icon: "\uD83C\uDFCB", color: "#2F9E44", bg: "#EBFBEE", desc: "Exercise & wellness" },
+  { id: "personal", label: "Personal", icon: "\u2B50", color: "#5F3DC4", bg: "#F3F0FF", desc: "Goals & habits" },
 ];
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const QUOTES = [
-  "Consistency beats intensity. Show up daily. \uD83D\uDD25",
+  "Consistency beats intensity. Show up daily.",
   "Small steps every day lead to big results.",
   "You don't have to be great to start, but you have to start to be great.",
   "Focus on progress, not perfection.",
-  "Interview prep is a marathon, not a sprint.",
-  "One problem a day keeps rejection away. \uD83D\uDCAA",
   "The best time to start was yesterday. The next best time is now.",
   "Discipline is choosing between what you want now and what you want most.",
+  "Done is better than perfect.",
+  "A little progress each day adds up to big results.",
 ];
 
 const STORAGE_KEY = "planner-data";
@@ -35,13 +35,13 @@ const COLOR_OPTIONS = [
 ];
 
 const DAILY_CHALLENGES = [
-  { text: "Explain a concept to an imaginary junior dev", icon: "\uD83E\uDDD1\u200D\uD83C\uDFEB" },
-  { text: "Solve a problem without running the code first", icon: "\uD83E\uDDE0" },
-  { text: "Write pseudocode before actual code today", icon: "\uD83D\uDCDD" },
-  { text: "Teach someone (or yourself) one new thing", icon: "\uD83D\uDCA1" },
-  { text: "Optimize a previous solution for better time complexity", icon: "\u23F1\uFE0F" },
-  { text: "Read one page of documentation you've been avoiding", icon: "\uD83D\uDCDA" },
-  { text: "Write a commit message so good it makes you smile", icon: "\uD83D\uDE04" },
+  { text: "Do the hardest task on your list first", icon: "\uD83E\uDDE0" },
+  { text: "Take a 5-minute break every 25 minutes", icon: "\u23F1\uFE0F" },
+  { text: "Write down 3 things you're grateful for", icon: "\uD83D\uDCDD" },
+  { text: "Teach someone one new thing you learned", icon: "\uD83D\uDCA1" },
+  { text: "Spend 10 minutes organizing your workspace", icon: "\uD83E\uDDF9" },
+  { text: "Read something for 15 minutes today", icon: "\uD83D\uDCDA" },
+  { text: "Reach out to someone you haven't talked to in a while", icon: "\uD83D\uDE04" },
 ];
 
 const FUN_FACTS = [
@@ -62,10 +62,10 @@ const FUN_FACTS = [
 ];
 
 const DEFAULT_SUBTASKS = {
-  dsa: ["Solve 1 Easy problem", "Solve 1 Medium problem", "Revise yesterday's problem"],
-  dev: ["Code for 1 hour on project", "Learn 1 new concept/API", "Push code to GitHub"],
-  core: ["Study 1 topic deeply (30 min)", "Write short notes", "Practice 5 MCQs"],
-  english: ["Read 1 article (15 min)", "Learn 5 new words", "Practice speaking (10 min)"],
+  work: ["Complete top priority task", "Reply to pending messages", "Plan tomorrow's tasks"],
+  learn: ["Study for 30 minutes", "Take notes on key concepts", "Practice what you learned"],
+  health: ["Exercise for 20 minutes", "Drink 8 glasses of water", "Get 7+ hours of sleep"],
+  personal: ["Work on a personal goal", "Read for 15 minutes", "Do something creative"],
 };
 
 const getToday = () => new Date().toISOString().split("T")[0];
