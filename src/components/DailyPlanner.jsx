@@ -291,6 +291,14 @@ export default function DailyPlanner() {
 
   return (
     <div style={styles.root}>
+      {/* Top Bar */}
+      <div style={styles.topBar}>
+        <span style={styles.topBarTitle}>Task Tracker</span>
+        <button onClick={() => setShowSyncPanel(true)} style={styles.syncBtnTop}>
+          {syncCode ? (syncing ? "\u21BB" : "\u2601") : "\u26A1"} {syncCode ? "Synced" : "Sync"}
+        </button>
+      </div>
+
       {/* Progress Ring */}
       <div style={styles.progressSection}>
         <div style={styles.progressRing}>
@@ -704,14 +712,9 @@ export default function DailyPlanner() {
       {/* Footer */}
       <div style={styles.footer}>
         <p style={styles.footerText}>"{quote}"</p>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={() => setShowSyncPanel(true)} style={styles.syncBtn}>
-            {syncCode ? (syncing ? "\u21BB" : "\u2601") : "\u26A1"} {syncCode ? "Synced" : "Sync"}
-          </button>
-          <button onClick={resetToday} style={styles.resetBtn} title="Reset today's progress">
-            {"\u21BA"} Reset
-          </button>
-        </div>
+        <button onClick={resetToday} style={styles.resetBtn} title="Reset today's progress">
+          {"\u21BA"} Reset
+        </button>
       </div>
 
       {/* Sync Panel */}
@@ -819,6 +822,24 @@ const styles = {
     fontFamily: "'DM Sans', sans-serif",
   },
   loadIcon: { fontSize: 48, marginBottom: 12 },
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  topBarTitle: { fontSize: 18, fontWeight: 700, color: "#3D3529" },
+  syncBtnTop: {
+    background: "#FFFDF9",
+    border: "1px solid #E8E0D4",
+    color: "#A69B8D",
+    padding: "6px 14px",
+    borderRadius: 10,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    fontFamily: "'DM Sans', sans-serif",
+  },
   progressSection: {
     display: "flex",
     alignItems: "center",
@@ -1222,17 +1243,6 @@ const styles = {
   },
   footerText: { margin: 0, fontSize: 12, color: "#868E96", lineHeight: 1.8, fontStyle: "italic", flex: 1 },
   resetBtn: {
-    background: "rgba(0,0,0,0.05)",
-    border: "none",
-    color: "#868E96",
-    padding: "6px 12px",
-    borderRadius: 8,
-    fontSize: 12,
-    cursor: "pointer",
-    fontFamily: "'DM Sans', sans-serif",
-    flexShrink: 0,
-  },
-  syncBtn: {
     background: "rgba(0,0,0,0.05)",
     border: "none",
     color: "#868E96",
